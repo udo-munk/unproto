@@ -1,0 +1,92 @@
+#!/bin/sh
+#
+# This is a wrapper to use 'unproto' together with the MWC C compiler
+# distributed with Coherent 3.x. Unfortunately the design of this
+# compiler doesn't allow to substitute the cpp pass with an alternate
+# one.
+#
+# Copyright (C) 2019, 2020 Udo Munk
+
+USAGE="usage: acc [cpp, cc and ld options] source"
+COPTIONS=""
+POPTIONS="-D__STDC__=1"
+
+tempfile=unp$$
+ret=1
+
+set -- `getopt I:D:U:EOcfKQV:o:L:l:AB:M:nN:q:St:v $*`
+if [ $? != 0 ]
+then
+  echo $USAGE
+  exit $ret
+fi
+
+for i in $*
+do
+  case $i in
+    -I) POPTIONS=$POPTIONS"-I"$2" "; shift 2;;
+    -D) POPTIONS=$POPTIONS"-D"$2" "; shift 2;;
+    -U) POPTIONS=$POPTIONS"-U"$2" "; shift 2;;
+    -E) POPTIONS=$POPTIONS"-E "; shift;;
+    -O) COPTIONS=$COPTIONS"-O "; shift;;
+    -c) COPTIONS=$COPTIONS"-c "; shift;;
+    -f) COPTIONS=$COPTIONS"-f "; shift;;
+    -K) COPTIONS=$COPTIONS"-K "; shift;;
+    -Q) COPTIONS=$COPTIONS"-Q "; shift;;
+    -V) COPTIONS=$COPTIONS"-V"$2" "; shift 2;;
+    -o) COPTIONS=$COPTIONS"-o "$2" "; shift 2;;
+    -L) COPTIONS=$COPTIONS"-L"$2" "; shift 2;;
+    -l) COPTIONS=$COPTIONS"-l"$2" "; shift 2;;
+    -A) COPTIONS=$COPTIONS"-A "; shift;;
+    -B) COPTIONS=$COPTIONS"-B"$2" "; shift 2;;
+    -M) COPTIONS=$COPTIONS"-M"$2" "; shift 2;;
+    -n) COPTIONS=$COPTIONS"-n "; shift;;
+    -N) COPTIONS=$COPTIONS"-N"$2" "; shift 2;;
+    -q) COPTIONS=$COPTIONS"-q "$2" "; shift 2;;
+    -S) COPTIONS=$COPTIONS"-S "; shift;;
+    -t) COPTIONS=$COPTIONS"-t "$2" "; shift 2;;
+    -v) COPTIONS=$COPTIONS"-v "; shift;;
+    --) shift; break;;
+    -*) echo $USAGE; exit $ret;;
+  esac
+done
+
+if [ $# -lt 1 ]
+then
+  echo "no source file"
+  exit $ret
+fi
+
+if [ ! -f $1 ]
+then
+  echo "cannot open $1"
+  exit $ret
+fi
+
+case $1 in
+  *.c)
+	/usr/local/bin/unproto $POPTIONS $1 >/tmp/$tempfile.c
+	/bin/cc $POPTIONS $COPTIONS /tmp/$tempfile.c
+	ret=$?
+	if [ -f $tempfile ]
+	then
+	  /bin/mv $tempfile `basename $1 .c`
+        else
+	  if [ -f $tempfile.o ]
+	  then
+	    /bin/mv $tempfile.o `basename $1 .c`.o
+	  fi
+	fi
+	/bin/rm -f /tmp/$tempfile.c
+	;;
+  *.o | *.s | *.a)
+	/bin/cc $COPTIONS $*
+	ret=$?
+	;;
+  *)
+	echo "unknown source file"
+	exit $ret
+	;;
+esac
+
+exit $ret

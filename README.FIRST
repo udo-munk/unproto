@@ -1,0 +1,30 @@
+
+	See README for the original README.
+
+	This is a copy of Wietse Venema's unproto program, which allows
+	you to compile ANSI C programs using pre-ANSI C compilers.
+
+	This version is based on unproto 1.6 from 1993. It contains
+	modifications and additions by Udo Munk and Nils M Holm.
+
+	Udo provided a compiler driver script for the Coherent
+	operating system.
+
+	I (Nils) have made the following modifications:
+
+	(1) Line number control directives other than "#" can be
+	    generated (Makefile variable LINE).
+
+	(2) Line number directives with leading blanks are accepted.
+	    This modification allows to compile programs containing
+	    indented #include directives, which make some preprocessors
+	    emit line control directives with leading blanks.
+
+	(3) Changed some code that caused warning messages on modern
+	    compilers, but without breaking K&R C compatibility. This
+	    means that there are still a lot of warnings left.
+	    *** DO NOT FIX THOSE! ***
+	    The purpose of unproto is to compile on ancient platforms!
+	    Fixing these warnings will most probably break
+	    compatibility with those platforms!
+
