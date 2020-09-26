@@ -1,1 +1,2 @@
-# unproto - Compile ANSI C with traditional UNIX C compiler
+# unproto
+Compile ANSI C with traditional UNIX C compiler
