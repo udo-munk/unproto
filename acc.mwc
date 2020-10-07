@@ -9,7 +9,7 @@
 
 USAGE="usage: acc [cpp, cc and ld options] source"
 COPTIONS=""
-POPTIONS="-D__STDC__=1"
+POPTIONS="-D__STDC__=1 "
 
 tempfile=unp$$
 ret=1
